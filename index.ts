@@ -3,20 +3,25 @@ const server = Bun.serve({
   port: process.env.PORT ?? 3000,
   async fetch(request) {  // 使用 async 关键字
     try {
-      const reqJson = await request.json();  // 修复 req 为 request
-      console.log(reqJson);
+      // 确保请求为 POST 并且内容类型为 JSON
+      if (request.method === 'POST' && request.headers.get('Content-Type') === 'application/json') {
+        const reqJson = await request.json();  // 尝试解析 JSON
+        console.log(reqJson);
 
-      if (reqJson) {
-        const resJsonWeixin = JSON.stringify({ "msgtype": "text", "text": {"content": "Received JSON successfully!" }}); // 示例响应
+        // 直接返回成功的响应
+        const resJsonWeixin = JSON.stringify({ "msgtype": "text", "text": { "content": reqJson } }); // 示例响应
         console.log(resJsonWeixin);
         return new Response(resJsonWeixin, { status: 200, headers: { 'Content-Type': 'application/json' } });
-      } else {
-        return new Response("Welcome to Bun-neynar!", { status: 200 });
       }
     } catch (error) {
+      // 捕获解析时的错误，但不处理它
       console.error("Error parsing JSON:", error);
-      return new Response("Invalid JSON", { status: 400 });
     }
+
+    // 如果请求不符合条件，或解析失败，返回默认消息
+    const resJsonWeixin = JSON.stringify({ "msgtype": "text", "text": { "content": "Welcome to Bun-neynar!" } }); // 示例响应
+    console.log(resJsonWeixin);
+    return new Response(resJsonWeixin, { status: 200, headers: { 'Content-Type': 'application/json' } });
   },
 });
 
