@@ -9,7 +9,7 @@ const server = Bun.serve({
     {
       return new Response(resJson);
     } else {
-      return new Response("Welcome to Bun!");
+      return new Response("Welcome to Bun-neynar!");
     }
   },
 });
