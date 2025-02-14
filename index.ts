@@ -7,7 +7,7 @@ const server = Bun.serve({
       console.log(reqJson);
 
       if (reqJson) {
-        const resJson = JSON.stringify({ message: "Received JSON successfully!" }); // 示例响应
+        const resJson = JSON.stringify({ "msgtype": "text", "text": {"content": "Received JSON successfully!" }}); // 示例响应
         return new Response(resJson, { status: 200, headers: { 'Content-Type': 'application/json' } });
       } else {
         return new Response("Welcome to Bun-neynar!", { status: 200 });
