@@ -1,40 +1,25 @@
 import { config } from "dotenv";
-
-// 加载 .env 文件
-config();
-
 import { ReqJson } from "./types";
 
-// Bun automatically loads .env file
+config();
 
-// read env
 const NEYNAR_API_KEY = process.env.NEYNAR_API_KEY;
 const NEYNAR_BOT_UUID = process.env.NEYNAR_BOT_UUID;
 
-console.log(NEYNAR_API_KEY);
-console.log(NEYNAR_BOT_UUID);
-
-const agent_base_url =
-  "https://17472d73-f74b-463c-9312-60a511c607c3-00-1f52dvrxswcyb.pike.replit.dev";
-
+const agent_base_url = process.env.AGENT_BASE_URL;
 const neynar_url = "https://api.neynar.com/v2/farcaster/cast";
 
 const server = Bun.serve({
   hostname: "::",
   port: process.env.PORT ?? 3000,
   async fetch(request) {
-    // 使用 async 关键字
     try {
-      // 确保请求为 POST 并且内容类型为 JSON
       if (
         request.method === "POST" &&
         request.headers.get("Content-Type") === "application/json"
       ) {
-        const reqJson = (await request.json()) as ReqJson; // 尝试解析 JSON
-        console.log(reqJson);
+        const reqJson = (await request.json()) as ReqJson;
 
-        // read reqJson.data.text, post to agent_base_url/chat
-        console.log("start call agent");
         const agentResponse = await fetch(`${agent_base_url}/chat`, {
           method: "POST",
           headers: {
@@ -49,12 +34,9 @@ const server = Bun.serve({
         });
 
         const agentResponseData = await agentResponse.json();
-        console.log(agentResponseData);
 
         // public cast with neynar
         if (NEYNAR_API_KEY && NEYNAR_BOT_UUID) {
-          console.log("start publish cast");
-
           const castResponse = await fetch(neynar_url, {
             method: "POST",
             headers: {
@@ -68,37 +50,46 @@ const server = Bun.serve({
               parent: reqJson.data?.hash,
             }),
           });
-
-          const castResponseJson = await castResponse.json();
-          console.log(castResponseJson);
+          await castResponse.json();
         }
 
-        // 直接返回成功的响应
-        const resJsonWeixin = JSON.stringify({
-          msgtype: "text",
-          text: { content: reqJson },
-        }); // 示例响应
-        console.log(resJsonWeixin);
-        return new Response(resJsonWeixin, {
-          status: 200,
-          headers: { "Content-Type": "application/json" },
-        });
+        return new Response(
+          JSON.stringify({
+            msgtype: "text",
+            text: {
+              content: (agentResponseData as { response: string }).response,
+            },
+          }),
+          {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          }
+        );
       }
     } catch (error) {
-      // 捕获解析时的错误，但不处理它
-      console.error("Error parsing JSON:", error);
+      console.error("Error:", error);
+      return new Response(
+        JSON.stringify({
+          msgtype: "text",
+          text: { content: "Error occurred" },
+        }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
     }
 
-    // 如果请求不符合条件，或解析失败，返回默认消息
-    const resJsonWeixin = JSON.stringify({
-      msgtype: "text",
-      text: { content: "Welcome to Bun-neynar!" },
-    }); // 示例响应
-    console.log(resJsonWeixin);
-    return new Response(resJsonWeixin, {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({
+        msgtype: "text",
+        text: { content: "Welcome to Beacon AI" },
+      }),
+      {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   },
 });
 
