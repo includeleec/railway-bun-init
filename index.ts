@@ -19,7 +19,9 @@ const server = Bun.serve({
         request.headers.get("Content-Type") === "application/json"
       ) {
         const reqJson = (await request.json()) as ReqJson;
+        console.log("[Webhook] Received:", reqJson.data?.text);
 
+        console.log("[Agent] Calling...");
         const agentResponse = await fetch(`${agent_base_url}/chat`, {
           method: "POST",
           headers: {
@@ -32,11 +34,15 @@ const server = Bun.serve({
             takoId: "",
           }),
         });
-
         const agentResponseData = await agentResponse.json();
+        console.log(
+          "[Agent] Response:",
+          (agentResponseData as { response: string }).response
+        );
 
         // public cast with neynar
         if (NEYNAR_API_KEY && NEYNAR_BOT_UUID) {
+          console.log("[Neynar] Publishing cast...");
           const castResponse = await fetch(neynar_url, {
             method: "POST",
             headers: {
@@ -50,7 +56,8 @@ const server = Bun.serve({
               parent: reqJson.data?.hash,
             }),
           });
-          await castResponse.json();
+          const castResult = await castResponse.json();
+          console.log("[Neynar] Published:", castResult);
         }
 
         return new Response(
