@@ -53,6 +53,7 @@ const server = Bun.serve({
         // public cast with neynar
         if (NEYNAR_API_KEY && NEYNAR_BOT_UUID) {
           console.log("start publish cast");
+
           const castResponse = await fetch(neynar_url, {
             method: "POST",
             headers: {
@@ -62,7 +63,7 @@ const server = Bun.serve({
             },
             body: JSON.stringify({
               signer_uuid: NEYNAR_BOT_UUID,
-              text: agentResponseData,
+              text: (agentResponseData as { response: string }).response,
               parent: reqJson.data?.hash,
             }),
           });
