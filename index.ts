@@ -24,6 +24,7 @@ const server = Bun.serve({
         console.log(reqJson);
 
         // read reqJson.data.text, post to agent_base_url/chat
+        console.log("start call agent");
         const agentResponse = await fetch(`${agent_base_url}/chat`, {
           method: "POST",
           headers: {
@@ -41,6 +42,7 @@ const server = Bun.serve({
 
         // public cast with neynar
         if (NEYNAR_API_KEY && NEYNAR_BOT_UUID) {
+          console.log("start publish cast");
           const castResponse = await fetch(neynar_url, {
             method: "POST",
             headers: {
