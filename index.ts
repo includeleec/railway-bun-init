@@ -1,8 +1,18 @@
+import { config } from "dotenv";
+
+// 加载 .env 文件
+config();
+
 import { ReqJson } from "./types";
+
+// Bun automatically loads .env file
 
 // read env
 const NEYNAR_API_KEY = process.env.NEYNAR_API_KEY;
 const NEYNAR_BOT_UUID = process.env.NEYNAR_BOT_UUID;
+
+console.log(NEYNAR_API_KEY);
+console.log(NEYNAR_BOT_UUID);
 
 const agent_base_url =
   "https://17472d73-f74b-463c-9312-60a511c607c3-00-1f52dvrxswcyb.pike.replit.dev";
