@@ -51,7 +51,7 @@ const server = Bun.serve({
             body: JSON.stringify({
               signer_uuid: NEYNAR_BOT_UUID,
               text: agentResponseData,
-              parent: reqJson.data?.hash?,
+              parent: reqJson.data?.hash,
             }),
           });
 
