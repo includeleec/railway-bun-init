@@ -1,7 +1,13 @@
 import { ReqJson } from "./types";
 
+// read env
+const NEYNAR_API_KEY = process.env.NEYNAR_API_KEY;
+const NEYNAR_BOT_UUID = process.env.NEYNAR_BOT_UUID;
+
 const agent_base_url =
   "https://17472d73-f74b-463c-9312-60a511c607c3-00-1f52dvrxswcyb.pike.replit.dev";
+
+const neynar_url = "https://api.neynar.com/v2/farcaster/cast";
 
 const server = Bun.serve({
   hostname: "::",
@@ -32,6 +38,26 @@ const server = Bun.serve({
 
         const agentResponseData = await agentResponse.json();
         console.log(agentResponseData);
+
+        // public cast with neynar
+        if (NEYNAR_API_KEY && NEYNAR_BOT_UUID) {
+          const castResponse = await fetch(neynar_url, {
+            method: "POST",
+            headers: {
+              accept: "application/json",
+              "content-type": "application/json",
+              "x-api-key": NEYNAR_API_KEY,
+            },
+            body: JSON.stringify({
+              signer_uuid: NEYNAR_BOT_UUID,
+              text: agentResponseData,
+              parent: reqJson.data?.hash?,
+            }),
+          });
+
+          const castResponseJson = await castResponse.json();
+          console.log(castResponseJson);
+        }
 
         // 直接返回成功的响应
         const resJsonWeixin = JSON.stringify({
