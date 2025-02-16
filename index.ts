@@ -43,6 +43,7 @@ const server = Bun.serve({
           body: JSON.stringify({
             prompt: reqJson.data?.text,
             fid: reqJson.data?.author?.fid,
+            fusername: reqJson.data?.author?.username,
             takoId: "",
           }),
         });
